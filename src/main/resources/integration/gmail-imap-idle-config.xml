@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:int-file="http://www.springframework.org/schema/integration/file"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/mail http://www.springframework.org/schema/integration/mail/spring-integration-mail.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd"
+	   xmlns:int="http://www.springframework.org/schema/integration"
+	   xmlns:int-mail="http://www.springframework.org/schema/integration/mail"
+	   xmlns:util="http://www.springframework.org/schema/util">
+
+	<!--<int:channel id="receiveChannel" />-->
+	<!--&lt;!&ndash; replace 'userid and 'password' with the real values &ndash;&gt;-->
+	<!--<int-mail:imap-idle-channel-adapter id="customAdapter"-->
+			<!--store-uri="imaps://durgeshdandotiya%40gmail.com:Toilet890@imap.gmail.com:993/inbox"-->
+			<!--channel="receiveChannel"-->
+			<!--auto-startup="true"-->
+			<!--should-delete-messages="false"-->
+			<!--should-mark-messages-as-read="false"-->
+			<!--java-mail-properties="javaMailProperties"/>-->
+
+	<!--<util:properties id="javaMailProperties">-->
+		<!--<prop key="mail.imap.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>-->
+		<!--<prop key="mail.imap.socketFactory.fallback">false</prop>-->
+		<!--<prop key="mail.store.protocol">imaps</prop>-->
+		<!--<prop key="mail.debug">false</prop>-->
+	<!--</util:properties>-->
+
+	<!--<int:channel id="inboundChannel"/>-->
+
+	<!--<int:chain id="transform-split" input-channel="inboundChannel" output-channel="outputChannel">-->
+		<!--<int:transformer>-->
+			<!--<bean class="EmailTransformer"/>-->
+		<!--</int:transformer>-->
+		<!--<int:splitter>-->
+			<!--<bean class="EmailSplitter"/>-->
+		<!--</int:splitter>-->
+	<!--</int:chain>-->
+
+
+
+
+	<!--<int:channel id="outputChannel"/>-->
+
+	<!--<int-file:outbound-channel-adapter  id="save-as-file"-->
+										<!--auto-create-directory="true"-->
+										<!--channel="outputChannel"-->
+										<!--directory-expression="'target/out' + headers.directory"/>-->
+
+
+
+	<!--<int-mail:inbound-channel-adapter id="poll-for-email"-->
+									  <!--channel="inboundChannel"-->
+									  <!--java-mail-properties="javaMailProperties"-->
+									  <!--store-uri="pop3://durgeshdandotiya%40gmail.com:Toilet890@pop.gmail.com/INBOX"-->
+									  <!--should-delete-messages="false">-->
+		<!--<int:poller fixed-rate="5000"/>-->
+	<!--</int-mail:inbound-channel-adapter>-->
+
+	<!--<util:properties id="javaMailProperties">-->
+		<!--<prop key="mail.pop3.socketFactory.fallback">false</prop>-->
+		<!--<prop key="mail.debug">false</prop>-->
+		<!--<prop key="mail.pop3.port">995</prop>-->
+		<!--<prop key="mail.pop3.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>-->
+		<!--<prop key="mail.pop3.socketFactory.port">995</prop>-->
+	<!--</util:properties>-->
+
+
+	<int-mail:inbound-channel-adapter id="poll-for-email"
+									  channel="inboundChannel"
+									  java-mail-properties="javaMailProperties"
+                                      store-uri="imaps://{emailid}:{password}@imap.gmail.com:993/"
+									  auto-startup="true"
+									  simple-content="true"
+									  should-delete-messages="false">
+		<int:poller fixed-rate="5000"/>
+	</int-mail:inbound-channel-adapter>
+
+	<util:properties id="javaMailProperties">
+		<prop key="mail.imap.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
+		<prop key="mail.imap.socketFactory.fallback">false</prop>
+		<prop key="mail.store.protocol">imaps</prop>
+		<prop key="mail.debug">false</prop>
+	</util:properties>
+
+	<int:channel id="inboundChannel"/>
+
+	<int:chain id="transform-split" input-channel="inboundChannel" output-channel="outputChannel">
+		<int:transformer>
+			<bean class="com.edatablock.rpa.email.EmailTransformer"/>
+		</int:transformer>
+		<int:splitter>
+			<bean class="com.edatablock.rpa.email.EmailSplitter"/>
+		</int:splitter>
+	</int:chain>
+
+	<int:channel id="outputChannel"/>
+
+	<int-file:outbound-channel-adapter  id="save-as-file"
+										auto-create-directory="true"
+										channel="outputChannel"
+										directory-expression="'target/out/' + headers.directory"/>
+
+</beans>

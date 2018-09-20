@@ -1,0 +1,25 @@
+This project is to handle emails - This is based on the Spring Intgeration Project
+
+Monitor the email Inbox or Inbox/<folder>
+
+As soon as new email comes it will extract the email and attachments and send message in the active mq
+right not payload is <EmailMessage Object > It should be changed to json oayload
+
+
+Before build and run configure email settings in  - gmail-imap-idle-config.xml
+example
+store-uri="imaps://<email>%40gmail.com:<password>@imap.gmail.com:993/"
+
+
+To build run following command
+mvn clean install
+
+To run use following command
+
+java -jar ./target/edatablock-email-0.0.1-SNAPSHOT.jar
+
+edatablock-email
+
+
+
+
